@@ -11,11 +11,11 @@ if (!dbURL) {
 	process.exit(1);
 } 
 
-function fetchRows(sql, callback) {
+function fetchRows(sql, params, callback) {
 	pg.connect(dbURL, function(err, client) {
 	  if (err) throw err;
 	  client
-	    .query(sql)
+	    .query(sql, params)
 	    .on('row', function(row, result) {
 	    	result.addRow(row);
 	    })
@@ -26,14 +26,13 @@ function fetchRows(sql, callback) {
 }
 
 function fetchSheets(callback) {
-	fetchRows('select * from mt_event;', function(result) {
+	fetchRows('select * from mt_event;', [], function(result) {
 		callback(result.rows)
 	});
 }
 
 function fetchRecords(sheetId, callback) {
-	// TODO: Use a prepared statement here
-	fetchRows('select * from mt_money_record where event_id = ' + sheetId + ';', function(result) {
+	fetchRows('select * from mt_money_record where event_id = $1;', [sheetId], function(result) {
 		callback(result.rows)
 	});
 }
