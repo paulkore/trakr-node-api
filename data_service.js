@@ -26,13 +26,13 @@ function fetchRows(sql, params, callback) {
 }
 
 function fetchSheets(callback) {
-	fetchRows('select * from mt_event;', [], function(result) {
+	fetchRows('select * from mt_event order by id asc;', [], function(result) {
 		callback(result.rows)
 	});
 }
 
 function fetchRecords(sheetId, callback) {
-	fetchRows('select * from mt_money_record where event_id = $1;', [sheetId], function(result) {
+	fetchRows('select * from mt_money_record where event_id = $1 order by pub_date desc, id asc;', [sheetId], function(result) {
 		callback(result.rows)
 	});
 }
