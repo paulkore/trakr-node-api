@@ -2,7 +2,8 @@
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
-
+var moment  = require('moment');
+var svc = require('./data_service');
 
 /**
  *  Define the sample application.
@@ -104,6 +105,28 @@ var SampleApp = function() {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
         };
+
+        self.routes['/api/ping'] = function (req, res) {
+          res.json({
+            response: 'PONG!',
+            time: moment().format("dddd, MMMM Do YYYY, h:mm:ss a"),
+          });
+        };
+
+        self.routes['/api/sheets'] = function (req, res) {
+            console.log('API: fetching list of expense sheets!');
+            svc.fetchSheets(function(rows) {
+                res.json(rows);
+            });
+        };
+
+        self.routes['/api/sheets/:sheetId/records'] = function (req, res) {
+            var sheetId = req.params.sheetId
+            console.log('API: fetching list of records for sheet: ' + sheetId);
+            svc.fetchRecords(sheetId, function(rows) {
+                res.json(rows);
+            });
+        };
     };
 
 
@@ -113,7 +136,8 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express.createServer();
+        self.app = express();
+        self.app.set('json spaces', '  ');
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
@@ -144,6 +168,7 @@ var SampleApp = function() {
             console.log('%s: Node server started on %s:%d ...',
                         Date(Date.now() ), self.ipaddress, self.port);
         });
+
     };
 
 };   /*  Sample Application.  */
