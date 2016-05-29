@@ -139,6 +139,24 @@ var SampleApp = function() {
         self.app = express();
         self.app.set('json spaces', '  ');
 
+        //CORS middleware
+        var allowCrossDomain = function(req, res, next) {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+            res.header('Access-Control-Allow-Headers', 'Content-Type');
+            next();
+        };
+
+        self.app.configure(function() {
+            // self.app.use(express.bodyParser());
+            // self.app.use(express.cookieParser());
+            // self.app.use(express.session({ secret: 'cool beans' }));
+            self.app.use(express.methodOverride());
+            self.app.use(allowCrossDomain);
+            // self.app.use(app.router);
+            // self.app.use(express.static(__dirname + '/public'));
+        });
+
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
